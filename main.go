@@ -2,14 +2,22 @@ package main
 
 import (
 	"github.com/dalefeng/fesgo"
-	"net/http"
 )
 
 func main() {
 	engine := fesgo.NewEngine("8111")
-	g := engine.Group("user")
-	g.Add("/hello", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hello fes"))
+	group := engine.Group("user")
+	group.Get("/info", func(ctx *fesgo.Context) {
+		ctx.W.Write([]byte("get info"))
+	})
+	group.Post("/info", func(ctx *fesgo.Context) {
+		ctx.W.Write([]byte("pots info"))
+	})
+	group.Post("/login", func(ctx *fesgo.Context) {
+		ctx.W.Write([]byte("login"))
+	})
+	group.Any("/any", func(ctx *fesgo.Context) {
+		ctx.W.Write([]byte("any"))
 	})
 	engine.Run()
 }
