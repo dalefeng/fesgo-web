@@ -10,7 +10,7 @@ func main() {
 	group.Get("/info", func(ctx *fesgo.Context) {
 		ctx.W.Write([]byte("get info"))
 	})
-	group.Get("/info/*/center", func(ctx *fesgo.Context) {
+	group.Post("/info", func(ctx *fesgo.Context) {
 		ctx.W.Write([]byte("pots info"))
 	})
 	group.Post("/login", func(ctx *fesgo.Context) {
