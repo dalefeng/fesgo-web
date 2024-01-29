@@ -19,5 +19,8 @@ func main() {
 	group.Any("/any", func(ctx *fesgo.Context) {
 		ctx.W.Write([]byte("any"))
 	})
+	group.Get("/get/:id", func(ctx *fesgo.Context) {
+		ctx.W.Write([]byte("get Id"))
+	})
 	engine.Run()
 }
