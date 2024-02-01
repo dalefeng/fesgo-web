@@ -9,19 +9,21 @@ func main() {
 	engine := fesgo.NewEngine("8111")
 	group := engine.Group("user")
 
-	group.PreHandle(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
+	group.Use(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
 		return func(ctx *fesgo.Context) {
 			fmt.Println("pre handler")
 			next(ctx)
-		}
-	})
-	group.PostHandle(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
-		return func(ctx *fesgo.Context) {
 			fmt.Println("post handler")
 		}
 	})
 	group.Get("/info", func(ctx *fesgo.Context) {
 		ctx.W.Write([]byte("get info"))
+	}, func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
+		return func(ctx *fesgo.Context) {
+			fmt.Println("info")
+			next(ctx)
+			fmt.Println("info post")
+		}
 	})
 	group.Post("/info", func(ctx *fesgo.Context) {
 		ctx.W.Write([]byte("pots info"))
