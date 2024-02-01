@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/dalefeng/fesgo"
+	"net/http"
 )
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 		}
 	})
 	group.Post("/info", func(ctx *fesgo.Context) {
+		fmt.Println("te")
 		ctx.W.Write([]byte("pots info"))
 	})
 	group.Post("/login", func(ctx *fesgo.Context) {
@@ -36,6 +38,23 @@ func main() {
 	})
 	group.Get("/get/:id", func(ctx *fesgo.Context) {
 		ctx.W.Write([]byte("/get/:id"))
+	})
+	group.Get("/html", func(ctx *fesgo.Context) {
+		ctx.HTML(http.StatusOK, "<h1>FesGO<h1>")
+	})
+	group.Get("/indexTemplate", func(ctx *fesgo.Context) {
+		user := struct {
+			Name string
+		}{Name: "Feng "}
+		//ctx.HTMLTemplate("login.html", "", "tpl/login.html")
+		ctx.HTMLTemplate("index.html", user, "tpl/index.html", "tpl/header.html")
+	})
+	group.Get("/index", func(ctx *fesgo.Context) {
+		user := struct {
+			Name string
+		}{Name: "Feng "}
+		//ctx.HTMLTemplate("login.html", "", "tpl/login.html")
+		ctx.HTMLTemplateGlob("index.html", user, "tpl/*.html")
 	})
 	engine.Run()
 }
