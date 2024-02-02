@@ -27,7 +27,7 @@ func main() {
 		}
 	})
 	group.Post("/info", func(ctx *fesgo.Context) {
-		fmt.Println("test")
+		fmt.Println("test ")
 		ctx.W.Write([]byte("pots info"))
 	})
 	group.Post("/login", func(ctx *fesgo.Context) {
@@ -49,12 +49,14 @@ func main() {
 		//ctx.HTMLTemplate("login.html", "", "tpl/login.html")
 		ctx.HTMLTemplate("index.html", user, "tpl/index.html", "tpl/header.html")
 	})
+	engine.LoadTemplate("tpl/*.html")
 	group.Get("/index", func(ctx *fesgo.Context) {
 		user := struct {
 			Name string
-		}{Name: "Feng "}
+		}{Name: "Feng 123316qq44465"}
 		//ctx.HTMLTemplate("login.html", "", "tpl/login.html")
-		ctx.HTMLTemplateGlob("index.html", user, "tpl/*.html")
+		ctx.Template("index.html", user)
 	})
+	fmt.Println("server run ...")
 	engine.Run()
 }
