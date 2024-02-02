@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "tmp/main.exe"
-  cmd = "go build -o ./tmp/main.exe D:/Code/fesgo-web/fesgo-blog"
+  cmd = "powershell.exe go build -gcflags 'all=-N -l' -o ./tmp/main.exe ."
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
@@ -35,7 +35,7 @@ tmp_dir = "tmp"
   watcher = "cyan"
 
 [log]
-  main_only = true
+  main_only = false
   time = true
 
 [misc]
