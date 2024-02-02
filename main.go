@@ -27,7 +27,7 @@ func main() {
 		}
 	})
 	group.Post("/info", func(ctx *fesgo.Context) {
-		fmt.Println("te")
+		fmt.Println("test")
 		ctx.W.Write([]byte("pots info"))
 	})
 	group.Post("/login", func(ctx *fesgo.Context) {
