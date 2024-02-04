@@ -16,69 +16,72 @@ func main() {
 	group := engine.Group("user")
 
 	group.Use(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
-		return func(ctx *fesgo.Context) {
+		return func(c *fesgo.Context) {
 			fmt.Println("pre handler1")
-			next(ctx)
+			next(c)
 			fmt.Println("post handler")
 		}
 	})
-	group.Get("/info", func(ctx *fesgo.Context) {
-		ctx.W.Write([]byte("get info"))
+	group.Get("/info", func(c *fesgo.Context) {
+		c.W.Write([]byte("get info"))
 	}, func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
-		return func(ctx *fesgo.Context) {
+		return func(c *fesgo.Context) {
 			fmt.Println("info")
-			next(ctx)
+			next(c)
 			fmt.Println("info post")
 		}
 	})
-	group.Post("/info", func(ctx *fesgo.Context) {
+	group.Post("/info", func(c *fesgo.Context) {
 		fmt.Println("test ")
-		ctx.W.Write([]byte("pots info"))
+		c.W.Write([]byte("pots info"))
 	})
-	group.Post("/login", func(ctx *fesgo.Context) {
-		ctx.W.Write([]byte("login"))
+	group.Post("/login", func(c *fesgo.Context) {
+		c.W.Write([]byte("login"))
 	})
-	group.Any("/any", func(ctx *fesgo.Context) {
-		ctx.W.Write([]byte("any"))
+	group.Any("/any", func(c *fesgo.Context) {
+		c.W.Write([]byte("any"))
 	})
-	group.Get("/get/:id", func(ctx *fesgo.Context) {
-		ctx.W.Write([]byte("/get/:id"))
+	group.Get("/get/:id", func(c *fesgo.Context) {
+		c.W.Write([]byte("/get/:id"))
 	})
-	group.Get("/html", func(ctx *fesgo.Context) {
-		ctx.HTML(http.StatusOK, "<h1>FesGO<h1>")
+	group.Get("/html", func(c *fesgo.Context) {
+		c.HTML(http.StatusOK, "<h1>FesGO<h1>")
 	})
-	group.Get("/indexTemplate", func(ctx *fesgo.Context) {
+	group.Get("/indexTemplate", func(c *fesgo.Context) {
 		user := struct {
 			Name string
 		}{Name: "Feng 4442"}
-		//ctx.HTMLTemplate("login.html", "", "tpl/login.html")
-		ctx.HTMLTemplate("index.html", user, "tpl/index.html", "tpl/header.html")
+		//c.HTMLTemplate("login.html", "", "tpl/login.html")
+		c.HTMLTemplate("index.html", user, "tpl/index.html", "tpl/header.html")
 	})
 	engine.LoadTemplate("tpl/*.html")
-	group.Get("/index", func(ctx *fesgo.Context) {
+	group.Get("/index", func(c *fesgo.Context) {
 		user := struct {
 			Name string
 		}{Name: "Feng 123316qq44465"}
-		//ctx.HTMLTemplate("login.html", "", "tpl/login.html")
-		ctx.Template("index.html", user)
+		//c.HTMLTemplate("login.html", "", "tpl/login.html")
+		c.Template("index.html", user)
 	})
-	group.Get("/xml", func(ctx *fesgo.Context) {
+	group.Get("/xml", func(c *fesgo.Context) {
 		u := &User{Name: "feng"}
-		ctx.XML(http.StatusOK, u)
+		c.XML(http.StatusOK, u)
 	})
-	group.Get("/file", func(ctx *fesgo.Context) {
-		ctx.FileAttachment("tmp/main.exe", "man.exe")
-	})
-	group.Get("/string", func(ctx *fesgo.Context) {
-		ctx.String(http.StatusOK, "string")
-	})
-	group.Get("/redirect", func(ctx *fesgo.Context) {
-		ctx.Render(http.StatusFound, &render.Redirect{
+	group.Get("/redirect", func(c *fesgo.Context) {
+		c.Render(http.StatusFound, &render.Redirect{
 			Code:     http.StatusFound,
-			Request:  ctx.R,
+			Request:  c.R,
 			Location: "/user/index",
 		})
 	})
+	group.Get("/file", func(c *fesgo.Context) {
+		c.FileAttachment("tmp/main.exe", "man.exe")
+	})
+	group.Get("/string", func(c *fesgo.Context) {
+		name := c.GetQuery("name")
+		ids, _ := c.GetQueryArr("id")
+		c.String(http.StatusOK, "string hello: %s, ids: %v", name, ids)
+	})
+
 	fmt.Println("server run ...")
 	engine.Run()
 }
