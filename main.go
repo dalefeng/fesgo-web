@@ -3,8 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/dalefeng/fesgo"
+	"github.com/dalefeng/fesgo/render"
 	"net/http"
 )
+
+type User struct {
+	Name string `xml:"name"`
+}
 
 func main() {
 	engine := fesgo.NewEngine("8111")
@@ -45,7 +50,7 @@ func main() {
 	group.Get("/indexTemplate", func(ctx *fesgo.Context) {
 		user := struct {
 			Name string
-		}{Name: "Feng "}
+		}{Name: "Feng 4442"}
 		//ctx.HTMLTemplate("login.html", "", "tpl/login.html")
 		ctx.HTMLTemplate("index.html", user, "tpl/index.html", "tpl/header.html")
 	})
@@ -56,6 +61,23 @@ func main() {
 		}{Name: "Feng 123316qq44465"}
 		//ctx.HTMLTemplate("login.html", "", "tpl/login.html")
 		ctx.Template("index.html", user)
+	})
+	group.Get("/xml", func(ctx *fesgo.Context) {
+		u := &User{Name: "feng"}
+		ctx.XML(http.StatusOK, u)
+	})
+	group.Get("/file", func(ctx *fesgo.Context) {
+		ctx.FileAttachment("tmp/main.exe", "man.exe")
+	})
+	group.Get("/string", func(ctx *fesgo.Context) {
+		ctx.String(http.StatusOK, "string")
+	})
+	group.Get("/redirect", func(ctx *fesgo.Context) {
+		ctx.Render(http.StatusFound, &render.Redirect{
+			Code:     http.StatusFound,
+			Request:  ctx.R,
+			Location: "/user/index",
+		})
 	})
 	fmt.Println("server run ...")
 	engine.Run()
