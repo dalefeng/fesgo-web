@@ -12,12 +12,12 @@ type User struct {
 }
 
 func main() {
-	engine := fesgo.NewEngine("8111")
+	engine := fesgo.NewEngine()
 	group := engine.Group("user")
 
 	group.Use(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
 		return func(ctx *fesgo.Context) {
-			fmt.Println("pre handler")
+			fmt.Println("pre handler1")
 			next(ctx)
 			fmt.Println("post handler")
 		}
