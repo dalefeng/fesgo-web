@@ -78,7 +78,7 @@ func main() {
 	})
 	group.Get("/string", func(c *fesgo.Context) {
 		name := c.GetQuery("name")
-		ids, _ := c.GetQueryArr("id")
+		ids, _ := c.GetQueryMap("user")
 		c.String(http.StatusOK, "string hello: %s, ids: %v", name, ids)
 	})
 
