@@ -9,7 +9,8 @@ import (
 )
 
 type User struct {
-	Name string `xml:"name"`
+	Name    string   `xml:"name" json:"name" validate:"required,max=5,min=2"`
+	Address []string `xml:"address" json:"address"`
 }
 
 func main() {
@@ -96,6 +97,17 @@ func main() {
 			return
 		}
 		c.String(http.StatusOK, "success")
+	})
+
+	group.Post("/json", func(c *fesgo.Context) {
+		var us []User
+		err := c.BindJson(&us)
+		if err != nil {
+			log.Println(err)
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		c.JSON(http.StatusOK, us)
 	})
 
 	fmt.Println("server run ...")
