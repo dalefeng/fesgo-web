@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dalefeng/fesgo"
 	"github.com/dalefeng/fesgo/render"
+	"log"
 	"net/http"
 )
 
@@ -80,6 +81,21 @@ func main() {
 		name := c.GetQuery("name")
 		ids, _ := c.GetQueryMap("user")
 		c.String(http.StatusOK, "string hello: %s, ids: %v", name, ids)
+	})
+	group.Post("/string", func(c *fesgo.Context) {
+		name := c.GetPostForm("name")
+		ids, _ := c.GetPostFormMap("user")
+		c.String(http.StatusOK, "string hello: %s, ids: %v", name, ids)
+	})
+
+	group.Post("/file", func(c *fesgo.Context) {
+		file := c.FormFile("file")
+		err := c.SaveUploadFile(file, "upload/"+file.Filename)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		c.String(http.StatusOK, "success")
 	})
 
 	fmt.Println("server run ...")
