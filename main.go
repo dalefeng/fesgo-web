@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/dalefeng/fesgo"
+	fesLog "github.com/dalefeng/fesgo/logger"
 	"github.com/dalefeng/fesgo/render"
 	"log"
 	"net/http"
@@ -100,6 +101,7 @@ func main() {
 		c.String(http.StatusOK, "success")
 	})
 
+	logger := fesLog.Default()
 	group.Post("/json", func(c *fesgo.Context) {
 		var us []User
 		err := c.BindJson(&us)
@@ -108,6 +110,7 @@ func main() {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
+		logger.Info("json", "us", us)
 		c.JSON(http.StatusOK, us)
 	})
 
