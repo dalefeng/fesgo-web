@@ -16,6 +16,7 @@ type User struct {
 func main() {
 	engine := fesgo.NewEngine()
 	group := engine.Group("user")
+	group.Use(fesgo.Logging)
 
 	group.Use(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
 		return func(c *fesgo.Context) {
