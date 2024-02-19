@@ -102,6 +102,10 @@ func main() {
 	})
 
 	logger := fesLog.Default()
+	logger.SetLoggerPath("./log")
+	logger.Formatter = &fesLog.JsonFormatter{TimeDisplay: true}
+	logger.SetLevel(fesLog.LevelDebug)
+	logger.LogFileSize = 1 << 10
 	group.Post("/json", func(c *fesgo.Context) {
 		var us []User
 		err := c.BindJson(&us)
@@ -110,7 +114,10 @@ func main() {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
-		logger.Info("json", "us", us)
+		logger = logger.WithFields(fesLog.Fields{"user": "Feng", "age": "18"})
+		logger.Debug("Debug message", "us", us)
+		logger.Info("Info message", "us", us)
+		logger.Error("Error message", "us", us, "err", "not found")
 		c.JSON(http.StatusOK, us)
 	})
 
