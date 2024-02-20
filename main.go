@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/dalefeng/fesgo"
 	fesLog "github.com/dalefeng/fesgo/logger"
@@ -15,7 +16,7 @@ type User struct {
 }
 
 func main() {
-	engine := fesgo.NewEngine()
+	engine := fesgo.Default()
 	group := engine.Group("user")
 	group.Use(fesgo.Logging)
 
@@ -101,11 +102,10 @@ func main() {
 		c.String(http.StatusOK, "success")
 	})
 
-	logger := fesLog.Default()
-	logger.SetLoggerPath("./log")
-	logger.Formatter = &fesLog.JsonFormatter{TimeDisplay: true}
-	logger.SetLevel(fesLog.LevelDebug)
-	logger.LogFileSize = 1 << 10
+	engine.Logger.SetLoggerPath("./log")
+	engine.Logger.Formatter = &fesLog.TextFormatter{}
+	engine.Logger.SetLevel(fesLog.LevelDebug)
+	engine.Logger.LogFileSize = 1 << 10
 	group.Post("/json", func(c *fesgo.Context) {
 		var us []User
 		err := c.BindJson(&us)
@@ -114,10 +114,15 @@ func main() {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
-		logger = logger.WithFields(fesLog.Fields{"user": "Feng", "age": "18"})
-		logger.Debug("Debug message", "us", us)
-		logger.Info("Info message", "us", us)
-		logger.Error("Error message", "us", us, "err", "not found")
+		c.Logger = engine.Logger.WithFields(fesLog.Fields{"user": "Feng", "age": "18"})
+		c.Logger.Debug("Debug message", "us", us)
+		c.Logger.Info("Info message not args")
+		c.Logger.Info("Info message", "name", "Feng")
+		c.Logger.Error("Error message", errors.New("error test"))
+		c.Logger.Error(errors.New("error test"))
+		c.Logger.Errorw("errorw", errors.New("error test"))
+		c.Logger.Errorw("errorw", errors.New("error test"), errors.New("error 2222"))
+		c.Logger.Errorw("errorw", "err", errors.New("error test"))
 		c.JSON(http.StatusOK, us)
 	})
 
