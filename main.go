@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dalefeng/fesgo"
-	"github.com/dalefeng/fesgo/ferror"
 	fesLog "github.com/dalefeng/fesgo/logger"
 	"github.com/dalefeng/fesgo/render"
 	"log"
@@ -19,6 +18,14 @@ type User struct {
 
 func main() {
 	engine := fesgo.Default()
+	engine.RegisterErrorHandler(func(err error) (int, any) {
+		switch e := err.(type) {
+		case *Response:
+			return http.StatusOK, e
+		default:
+			return http.StatusInternalServerError, 500
+		}
+	})
 	group := engine.Group("user")
 	group.Use(fesgo.Logging)
 
@@ -117,17 +124,18 @@ func main() {
 			return
 		}
 		c.Logger.Info("Info message", "name", "Feng")
-		fesError := ferror.Default()
-		fesError.Result(func(err *ferror.FesError) {
-			c.Logger.Errorw("testErr", "err", err)
-			c.String(http.StatusInternalServerError, err.Error())
-			return
-		})
-		err = testErr(1)
-		fesError.Put(err)
-		err = testErr(2)
-		fesError.Put(err)
-		c.JSON(http.StatusOK, us)
+		//fesError := ferror.Default()
+		//fesError.Result(func(err *ferror.FesError) {
+		//	c.Logger.Errorw("testErr", "err", err)
+		//	c.String(http.StatusInternalServerError, err.Error())
+		//	return
+		//})
+		//err = testErr(1)
+		//fesError.Put(err)
+		//err = testErr(2)
+		//fesError.Put(err)
+		err = Error("账号错误")
+		c.HandleError(http.StatusOK, nil, err)
 	})
 
 	fmt.Println("server run ...")
@@ -139,4 +147,22 @@ func testErr(p int) error {
 		return errors.New("testErr," + strconv.Itoa(p))
 	}
 	return nil
+}
+
+type Response struct {
+	Code int
+	Msg  string
+	Data any
+}
+
+func (r *Response) Error() string {
+	return r.Msg
+}
+
+func Success(data any) *Response {
+	return &Response{Code: 0, Msg: "success", Data: data}
+}
+
+func Error(msg string) *Response {
+	return &Response{Code: 500, Msg: msg, Data: nil}
 }
