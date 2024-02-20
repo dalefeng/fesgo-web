@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dalefeng/fesgo"
+	"github.com/dalefeng/fesgo/ferror"
 	fesLog "github.com/dalefeng/fesgo/logger"
 	"github.com/dalefeng/fesgo/render"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type User struct {
@@ -114,18 +116,27 @@ func main() {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
-		c.Logger = engine.Logger.WithFields(fesLog.Fields{"user": "Feng", "age": "18"})
-		c.Logger.Debug("Debug message", "us", us)
-		c.Logger.Info("Info message not args")
 		c.Logger.Info("Info message", "name", "Feng")
-		c.Logger.Error("Error message", errors.New("error test"))
-		c.Logger.Error(errors.New("error test"))
-		c.Logger.Errorw("errorw", errors.New("error test"))
-		c.Logger.Errorw("errorw", errors.New("error test"), errors.New("error 2222"))
-		c.Logger.Errorw("errorw", "err", errors.New("error test"))
+		fesError := ferror.Default()
+		fesError.Result(func(err *ferror.FesError) {
+			c.Logger.Errorw("testErr", "err", err)
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		})
+		err = testErr(1)
+		fesError.Put(err)
+		err = testErr(2)
+		fesError.Put(err)
 		c.JSON(http.StatusOK, us)
 	})
 
 	fmt.Println("server run ...")
 	engine.Run()
+}
+
+func testErr(p int) error {
+	if p == 1 {
+		return errors.New("testErr," + strconv.Itoa(p))
+	}
+	return nil
 }
