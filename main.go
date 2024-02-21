@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dalefeng/fesgo"
+	"github.com/dalefeng/fesgo/fpool"
 	fesLog "github.com/dalefeng/fesgo/logger"
 	"github.com/dalefeng/fesgo/render"
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
+	"time"
 )
 
 type User struct {
@@ -114,7 +117,6 @@ func main() {
 	engine.Logger.SetLoggerPath("./log")
 	engine.Logger.Formatter = &fesLog.TextFormatter{}
 	engine.Logger.SetLevel(fesLog.LevelDebug)
-	engine.Logger.LogFileSize = 1 << 10
 	group.Post("/json", func(c *fesgo.Context) {
 		var us []User
 		err := c.BindJson(&us)
@@ -136,6 +138,28 @@ func main() {
 		//fesError.Put(err)
 		err = Error("账号错误")
 		c.HandleError(http.StatusOK, nil, err)
+	})
+
+	pool, err := fpool.NewPool(2)
+	if err != nil {
+		panic(err)
+	}
+	group.Post("/pool", func(c *fesgo.Context) {
+		g := sync.WaitGroup{}
+		g.Add(100)
+		start := time.Now()
+		for i := 0; i < 100; i++ {
+			func(index int) {
+				pool.Submit(func() {
+					c.Logger.Infow("pool", "index", index)
+					g.Done()
+				})
+			}(i)
+		}
+		g.Wait()
+		end := time.Now()
+		c.Logger.Infow("time", "cost", end.Sub(start))
+		c.String(http.StatusOK, "pool")
 	})
 
 	fmt.Println("server run ...")
