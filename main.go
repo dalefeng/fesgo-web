@@ -146,13 +146,15 @@ func main() {
 	}
 	group.Post("/pool", func(c *fesgo.Context) {
 		g := sync.WaitGroup{}
-		g.Add(100)
+		count := 5
+		g.Add(count)
 		start := time.Now()
-		for i := 0; i < 100; i++ {
+		for i := 0; i < count; i++ {
 			func(index int) {
 				pool.Submit(func() {
+					defer g.Done()
 					c.Logger.Infow("pool", "index", index)
-					g.Done()
+					time.Sleep(1 * time.Second)
 				})
 			}(i)
 		}
