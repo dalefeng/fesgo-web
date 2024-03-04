@@ -6,7 +6,6 @@ import (
 	"github.com/dalefeng/fesgo"
 	"github.com/dalefeng/fesgo/fpool"
 	fesLog "github.com/dalefeng/fesgo/logger"
-	"github.com/dalefeng/fesgo/render"
 	"log"
 	"net/http"
 	"strconv"
@@ -30,36 +29,18 @@ func main() {
 		}
 	})
 	group := engine.Group("user")
-	group.Use(fesgo.Logging)
-
+	auth := &fesgo.Account{
+		Users: map[string]string{
+			"feng": "123",
+		},
+	}
+	group.Use(fesgo.Logging, auth.BasicAuth)
 	group.Use(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
 		return func(c *fesgo.Context) {
 			fmt.Println("pre handler1")
 			next(c)
 			fmt.Println("post handler")
 		}
-	})
-	group.Get("/info", func(c *fesgo.Context) {
-		c.W.Write([]byte("get info"))
-	}, func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
-		return func(c *fesgo.Context) {
-			fmt.Println("info")
-			next(c)
-			fmt.Println("info post")
-		}
-	})
-	group.Post("/info", func(c *fesgo.Context) {
-		fmt.Println("test ")
-		c.W.Write([]byte("pots info"))
-	})
-	group.Post("/login", func(c *fesgo.Context) {
-		c.W.Write([]byte("login"))
-	})
-	group.Any("/any", func(c *fesgo.Context) {
-		c.W.Write([]byte("any"))
-	})
-	group.Get("/get/:id", func(c *fesgo.Context) {
-		c.W.Write([]byte("/get/:id"))
 	})
 	group.Get("/html", func(c *fesgo.Context) {
 		c.HTML(http.StatusOK, "<h1>FesGO<h1>")
@@ -83,20 +64,9 @@ func main() {
 		u := &User{Name: "feng"}
 		c.XML(http.StatusOK, u)
 	})
-	group.Get("/redirect", func(c *fesgo.Context) {
-		c.Render(http.StatusFound, &render.Redirect{
-			Code:     http.StatusFound,
-			Request:  c.R,
-			Location: "/user/index",
-		})
-	})
+
 	group.Get("/file", func(c *fesgo.Context) {
 		c.FileAttachment("tmp/main.exe", "man.exe")
-	})
-	group.Get("/string", func(c *fesgo.Context) {
-		name := c.GetQuery("name")
-		ids, _ := c.GetQueryMap("user")
-		c.String(http.StatusOK, "string hello: %s, ids: %v", name, ids)
 	})
 	group.Post("/string", func(c *fesgo.Context) {
 		name := c.GetPostForm("name")
@@ -126,16 +96,6 @@ func main() {
 			return
 		}
 		c.Logger.Info("Info message", "name", "Feng")
-		//fesError := ferror.Default()
-		//fesError.Result(func(err *ferror.FesError) {
-		//	c.Logger.Errorw("testErr", "err", err)
-		//	c.String(http.StatusInternalServerError, err.Error())
-		//	return
-		//})
-		//err = testErr(1)
-		//fesError.Put(err)
-		//err = testErr(2)
-		//fesError.Put(err)
 		err = Error("账号错误")
 		c.HandleError(http.StatusOK, nil, err)
 	})
@@ -146,7 +106,7 @@ func main() {
 	}
 	group.Post("/pool", func(c *fesgo.Context) {
 		g := sync.WaitGroup{}
-		count := 5
+		count := 3
 		g.Add(count)
 		start := time.Now()
 		for i := 0; i < count; i++ {
@@ -154,7 +114,7 @@ func main() {
 				pool.Submit(func() {
 					defer g.Done()
 					c.Logger.Infow("pool", "index", index)
-					time.Sleep(1 * time.Second)
+					time.Sleep(0 * time.Second)
 				})
 			}(i)
 		}
