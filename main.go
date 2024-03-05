@@ -124,6 +124,19 @@ func main() {
 		c.String(http.StatusOK, "pool")
 	})
 
+	//group.Get("/login", func(c *fesgo.Context) {
+	//	jwt := &token.JwtHandler{}
+	//	jwt.Secret = "123456"
+	//	jwt.SendCookie = true
+	//	jwt.Expire = 10 * time.Minute
+	//	jwt.Authenticator = func(c *fesgo.Context) (any, error) {
+	//	token, err := jwt.LoginHandler(c)
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//
+	//}
+
 	fmt.Println("server run ...")
 	engine.Run()
 }
