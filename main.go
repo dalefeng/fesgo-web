@@ -6,6 +6,7 @@ import (
 	"github.com/dalefeng/fesgo"
 	"github.com/dalefeng/fesgo/fpool"
 	fesLog "github.com/dalefeng/fesgo/logger"
+	"github.com/dalefeng/fesgo/token"
 	"log"
 	"net/http"
 	"strconv"
@@ -29,12 +30,13 @@ func main() {
 		}
 	})
 	group := engine.Group("user")
-	auth := &fesgo.Account{
-		Users: map[string]string{
-			"feng": "123",
-		},
-	}
-	group.Use(fesgo.Logging, auth.BasicAuth)
+	//auth := &fesgo.Account{
+	//	Users: map[string]string{
+	//		"feng": "123",
+	//	},
+	//}
+	group.Use(fesgo.Logging)
+	//group.Use(fesgo.Logging, auth.BasicAuth)
 	group.Use(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
 		return func(c *fesgo.Context) {
 			fmt.Println("pre handler1")
@@ -124,18 +126,23 @@ func main() {
 		c.String(http.StatusOK, "pool")
 	})
 
-	//group.Get("/login", func(c *fesgo.Context) {
-	//	jwt := &token.JwtHandler{}
-	//	jwt.Secret = "123456"
-	//	jwt.SendCookie = true
-	//	jwt.Expire = 10 * time.Minute
-	//	jwt.Authenticator = func(c *fesgo.Context) (any, error) {
-	//	token, err := jwt.LoginHandler(c)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//
-	//}
+	group.Get("/login", func(c *fesgo.Context) {
+		jwt := &token.JwtHandler{}
+		jwt.Secret = []byte("123456")
+		jwt.SendCookie = true
+		jwt.Expire = 10 * time.Minute
+		jwt.Authenticator = func(c *fesgo.Context) (map[string]any, error) {
+			data := make(map[string]any)
+			data["userId"] = 1
+			return data, nil
+		}
+		tokenResp, err := jwt.LoginHandler(c)
+		if err != nil {
+			panic(err)
+		}
+		c.JSON(http.StatusOK, tokenResp)
+
+	})
 
 	fmt.Println("server run ...")
 	engine.Run()
