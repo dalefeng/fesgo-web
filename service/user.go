@@ -34,3 +34,20 @@ func SaveUser() {
 	fmt.Println(insert)
 	db.Close()
 }
+
+func UpdateUser() {
+	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", "root", "yY13140236", "fungs.cn", 13306, "fesgo")
+	db := orm.Open("mysql", dataSource)
+	db.Prefix = "fes_"
+	//user := &User{
+	//	UserName: "user1",
+	//	Password: "123456",
+	//	Age:      18,
+	//}
+	insert, _, err := db.NewSession().Table("user").Where("id", 7).Update("age", 21)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(insert)
+	db.Close()
+}
