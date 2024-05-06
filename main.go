@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dalefeng/fesgo"
+	"github.com/dalefeng/fesgo-blog/service"
 	"github.com/dalefeng/fesgo/fpool"
 	fesLog "github.com/dalefeng/fesgo/logger"
 	"github.com/dalefeng/fesgo/token"
@@ -21,6 +22,7 @@ type User struct {
 
 func main() {
 	engine := fesgo.Default()
+	//config.LoadConfig()
 	engine.RegisterErrorHandler(func(err error) (int, any) {
 		switch e := err.(type) {
 		case *Response:
@@ -35,11 +37,11 @@ func main() {
 	//		"feng": "123",
 	//	},
 	//}
-	j := token.JwtHandler{
-		Secret: []byte("123456"),
-	}
+	//j := token.JwtHandler{
+	//	Secret: []byte("123456"),
+	//}
 	group.Use(fesgo.Logging)
-	group.Use(j.AuthInterceptor)
+	//group.Use(j.AuthInterceptor)
 	//group.Use(fesgo.Logging, auth.BasicAuth)
 	group.Use(func(next fesgo.HandlerFunc) fesgo.HandlerFunc {
 		return func(c *fesgo.Context) {
@@ -168,6 +170,10 @@ func main() {
 		}
 		c.JSON(http.StatusOK, tokenResp)
 
+	})
+
+	group.Get("/test", func(c *fesgo.Context) {
+		service.SaveUser()
 	})
 
 	fmt.Println("server run ...")
