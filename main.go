@@ -173,7 +173,7 @@ func main() {
 	})
 
 	group.Get("/test", func(c *fesgo.Context) {
-		service.UpdateUser()
+		service.Select()
 	})
 
 	fmt.Println("server run ...")
